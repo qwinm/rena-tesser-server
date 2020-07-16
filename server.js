@@ -52,10 +52,7 @@ app.get('/storage/', (req, res) => {
 
 app.delete('/remove/:file/:text', auth, dashboardController.delete)
 
-app.get('/download/:address/:id', (req, res) => {
-    console.log(req.params, 'req.params')
-    res.download(`./uploaded/${req.params.address}/${req.params.id}`, req.params.id)
-});
+app.get('/download/:id', dashboardController.downloadFile);
 
 app.get('/readDocument/:file', dashboardController.readDocumentFromURL);
 

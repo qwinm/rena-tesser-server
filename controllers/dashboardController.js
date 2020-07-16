@@ -19,17 +19,7 @@ class FileController {
             const txtData = await tesseract(path)
 
 
-            const staticKeyWords = ["payment", "receipt", "app", "express", "sales", "invoice", "purchase", "invoice"]
-            let keyWords = []
-            for (let i = 0; i < staticKeyWords.length; i++) {
-                if (txtData.toLowerCase().indexOf(staticKeyWords[i]) !== -1) {
-                    keyWords.push(staticKeyWords[i])
-                }
-            }
-            console.log("kkkkkkk", keyWords);
-
             ///
-
             const { originFileId, txtFileId } = await uploadFilesInBoxStorage(fileName, data, txtData);
 
             // Update user file in DB
@@ -38,7 +28,7 @@ class FileController {
             const txtURL = await generateDownloadURL(txtFileId);
             await File.updateOne(
                 { user_id },
-                { $push: { files: { documentId: originFileId, textId: txtFileId, keyWords: keyWords } } },
+                { $push: { files: { documentId: originFileId, textId: txtFileId, allText: txtData.toLowerCase() } } },
                 { upsert: true });
             await email(user.name, "uploded a new file", fileName, "adm19814576@gmail.com");
             res.status(200).send({ documentURL, txtURL });
@@ -70,22 +60,25 @@ class FileController {
         if (req.params.keyWord !== "all") {
             for (const singleFile of mergedfiles) {
                 let keyWordFound = false
-                if (singleFile.keyWords) {
-                    for (let keyWord of singleFile.keyWords) {
-                        if (keyWord === req.params.keyWord)
-                            keyWordFound = true
-                    }
+
+
+                if (singleFile.allText.indexOf(req.params.keyWord) !== -1) {
+
+                    keyWordFound = true
                 }
+
+
                 if (keyWordFound) {
 
-                    const documentURL = await generateDownloadURL(singleFile.documentId);
+                    // const documentURL = await generateDownloadURL(singleFile.documentId);
                     // const textURL = await generateDownloadURL(singleFile.textId);
-                    const documentName = await readFileInfo(singleFile.documentId);
+                    // const documentName = await readFileInfo(singleFile.documentId);
 
                     response.push({
                         documentId: singleFile.documentId,
-                        documentName: documentName,
-                        documentURL,
+                        // documentName: documentName,
+                        documentName: singleFile.documentId,
+                        // documentURL,
                         textId: singleFile.textId,
                         // textURL
                     });
@@ -94,14 +87,15 @@ class FileController {
         } else {
             for (const singleFile of mergedfiles) {
 
-                const documentURL = await generateDownloadURL(singleFile.documentId);
+                // const documentURL = await generateDownloadURL(singleFile.documentId);
                 // const textURL = await generateDownloadURL(singleFile.textId);
-                const documentName = await readFileInfo(singleFile.documentId);
+                // const documentName = await readFileInfo(singleFile.documentId);
 
                 response.push({
                     documentId: singleFile.documentId,
-                    documentName: documentName,
-                    documentURL,
+                    // documentName: documentName,S
+                    documentName: singleFile.documentId,
+                    // documentURL,
                     textId: singleFile.textId,
                     // textURL
                 });
@@ -140,6 +134,10 @@ class FileController {
             console.log('Failed in read txt document', error);
             res.status(400).send(error);
         }
+    }
+    async downloadFile(req, res) {
+        const documentURL = await generateDownloadURL(req.params.id);
+        res.send(documentURL)
     }
 }
 module.exports = new FileController()

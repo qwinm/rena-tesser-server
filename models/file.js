@@ -10,7 +10,8 @@ const File = mongoose.model('File', new mongoose.Schema({
   files: [{
     documentId: String,
     textId: String,
-    keyWords: Array
+    keyWords: Array,
+    allText: String
   }]
 
 }));
