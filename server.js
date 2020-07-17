@@ -45,16 +45,12 @@ app.post('/login', userController.login)
 app.post('/upload', auth, dashboardController.upload)
 app.get('/getFiles/:keyWord', auth, dashboardController.getFiles)
 
-app.get('/storage/', (req, res) => {
-    // console.log(req.params, 'req.params')
-    fs.createReadStream(`./uploaded/${req.params.address}/${req.params.id}`).pipe(res);
-});
 
 app.delete('/remove/:file/:text', auth, dashboardController.delete)
 
-app.get('/download/:id', dashboardController.downloadFile);
+app.get('/download/:id', auth, dashboardController.downloadFile);
 
-app.get('/readDocument/:file', dashboardController.readDocumentFromURL);
+app.get('/readDocument/:file', auth, dashboardController.readDocumentFromURL);
 
 let PORT = process.env.PORT || 8080;
 
