@@ -17,7 +17,7 @@ class FileController {
 
             const fileType = fileName.split('.')[1]
             console.log(fileType);
-            if (fileType != "jpg" && fileType != "png" && fileType != "bmp") return res.status("400").send("Wrong file format")
+            if (fileType != "jpg" && fileType != "png" && fileType != "bmp") return res.status("400").send("Unsupported file type")
             const txtData = await tesseract(path)
             const { originFileId, txtFileId } = await uploadFilesInBoxStorage(fileName, data, txtData);
 
