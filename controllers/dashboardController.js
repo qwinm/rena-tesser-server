@@ -5,7 +5,8 @@ const { uploadFilesInBoxStorage, generateDownloadURL, txtFileParser, deleteFileF
 const email = require("../email/email");
 const fs = require("fs")
 const path = require('path')
-const tesseract = require("../tesseract/tesseract")
+const tesseract = require("../tesseract/tesseract");
+const { type } = require('os');
 
 class FileController {
     async upload(req, res) {
@@ -13,6 +14,10 @@ class FileController {
             const user_id = req.user._id;
             const user = await User.findOne({ _id: user_id });
             const { data, fileName, path } = await ParseIncomingForm(req);
+
+            const fileType = fileName.split('.')[1]
+            console.log(fileType);
+            if (fileType != "jpg" && fileType != "png" && fileType != "bmp") return res.status("400").send("Wrong file format")
             const txtData = await tesseract(path)
             const { originFileId, txtFileId } = await uploadFilesInBoxStorage(fileName, data, txtData);
 
