@@ -5,6 +5,7 @@ const { uploadFilesInBoxStorage, generateDownloadURL, txtFileParser, deleteFileF
 const email = require("../email/email");
 const fs = require("fs")
 const path = require('path')
+const url = require("url")
 // const tesseract = require("../tesseract/tesseract");
 
 
@@ -19,7 +20,9 @@ class FileController {
             console.log(fileType);
             if (fileType != "jpg" && fileType != "png" && fileType != "bmp") return res.status("400").send("Unsupported file type")
             // const txtData = await tesseract(path)
-            const txtData = req.query.textData
+            var queryData = url.parse(req.url, true).query;
+            const txtData = queryData.textData
+            // console.log("yyyyyyyyyyyyyyyy", queryData.textData);
             const { originFileId, txtFileId } = await uploadFilesInBoxStorage(fileName, data, txtData);
 
             // Update user file in DB
